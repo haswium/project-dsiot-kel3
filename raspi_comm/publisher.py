@@ -3,7 +3,7 @@ import random
 import time
 
 # --- KONFIGURASI ---
-MQTT_BROKER = "100.88.0.45" 
+MQTT_BROKER = "100.88.25.26" 
 MQTT_TOPIC = "/tes_coba"
 
 # Menggunakan API Version 2 agar tidak kena Warning
