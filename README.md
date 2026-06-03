@@ -15,7 +15,7 @@
 6. [Struktur Topik MQTT (VPS Node)](#6-struktur-topik-mqtt-vps-node)
 7. [Struktur Direktori](#7-struktur-direktori)
 8. [Panduan Menjalankan Sistem (Execution Guide)](#8-panduan-menjalankan-sistem-execution-guide)
-
+9. [Video Demonstrasi](#9-video-demonstrasi)
 ---
 
 ## 1. Latar Belakang
@@ -177,3 +177,10 @@ Ikuti urutan langkah-langkah di bawah ini secara runtut untuk memastikan seluruh
 ### Langkah 3: Menjalankan Pemrosesan Visual (Laptop Edge Computer)
 1. Buka terminal lokal pada Laptop/PC yang terhubung ke webcam kabin.
 2. Arahkan ke direktori project Anda:
+
+## 9. Video Demonstrasi
+
+Video demonstrasi implementasi sistem dapat diakses melalui tautan berikut:
+
+📹 **Video Demo Project:**  
+[https://drive.google.com/file/d/18hua-VJ0BEN1F4AF8XjNADtF9VX8xU3A/view?usp=drive_link]
