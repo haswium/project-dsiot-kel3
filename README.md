@@ -23,13 +23,12 @@
 Kelelahan (fatigue) merupakan faktor penting yang dapat menurunkan produktivitas dan meningkatkan risiko kecelakaan kerja akibat penurunan kesadaran yang tidak terdeteksi sejak dini. Oleh karena itu, diperlukan sistem AIoT yang mengintegrasikan data visual melalui Computer Vision (Eye Aspect Ratio) dan data fisiologis melalui analisis HRV (Heart Rate Variability). Dengan protokol MQTT untuk transmisi data real-time ke VPS, sistem ini mampu memantau kondisi secara akurat serta memberikan peringatan otomatis melalui Telegram Bot.
 
 ## 2. Deskripsi Proyek
+Sistem pemantauan kelelahan berbasis AIoT ini dirancang untuk mendeteksi penurunan kesadaran **subjek** secara real-time dengan mengintegrasikan dua parameter validasi utama guna menghasilkan tingkat akurasi yang tinggi:
 
-Sistem pemantauan kelelahan (*fatigue*) pengemudi real-time ini mengintegrasikan dua parameter validasi utama untuk mengukur tingkat kelelahan secara objektif:
+* **Validasi Visual (Computer Vision):** Memetakan koordinat titik wajah (*facial landmark tracking*) secara real-time untuk menghitung pembukaan kelopak mata (*Eye Aspect Ratio*) serta mendeteksi aktivitas menguap (*Behavioral Fatigue Labeling*).
+* **Validasi Fisiologis (Heart Rate Variability):** Mengukur variabilitas detak jantung (*Heart Rate Variability*) melalui analisis *inter-beat interval* guna meminimalisir risiko *false alarm* yang sering terjadi pada sistem berbasis kamera akibat variasi wajah **user** atau intensitas cahaya di sekitar area pemantauan.
 
-* **Validasi Visual (Computer Vision):** Memetakan koordinat titik wajah (*facial landmark tracking*) secara real-time untuk menghitung pembukaan kelopak mata (*Eye Aspect Ratio*) dan mendeteksi aktivitas menguap (*Behavioral Fatigue Labeling*).
-* **Validasi Fisiologis (Heart Rate Variability):** Mengukur fluktuasi detak jantung inter-beat interval dari pengemudi melalui sensor denyut nadi untuk meminimalkan risiko *false alarm* yang sering terjadi pada sistem berbasis kamera akibat variasi anatomi wajah pengemudi atau intensitas cahaya kabin.
-
-Seluruh data dari lapisan *edge* dikirimkan menggunakan arsitektur ringan via protokol **MQTT (Mosquitto Broker)** ke server **VPS**. Di sisi server, data diproses dalam *machine learning pipeline* menggunakan algoritma **Random Forest Classifier** untuk menghasilkan keputusan klasifikasi akhir, yang kemudian divisualisasikan pada *Metabase Dashboard* serta memicu alarm darurat via *Telegram Bot* jika terdeteksi anomali kesadaran.
+Seluruh data dari lapisan *edge* ditransmisikan menggunakan arsitektur ringan via protokol **MQTT (Mosquitto Broker)** ke server **VPS**. Di sisi server, sistem melakukan fusi data (penggabungan) antara status visual dan data fisiologis untuk menghasilkan keputusan klasifikasi kondisi akhir secara objektif. Hasil fusi data tersebut divisualisasikan pada *Metabase Dashboard* serta memicu notifikasi peringatan darurat otomatis melalui *Telegram Bot* jika terdeteksi anomali kesadaran di bawah ambang batas aman.
 
 ---
 
@@ -65,11 +64,65 @@ Berikut merupakan komponen hardware aktual yang digunakan dalam proyek ini:
 | 7 | **Raspberry Pi** | <img src="bahan/rasp.jpeg" width="300"> | Pi 4 Model B | Perangkat gateway lokal untuk menjembatani routing data sensor menuju server broker melalui skrip shell. |
 | 8 | **Laptop / PC** | - | Edge PC | Unit komputasi lokal untuk menjalankan algoritma visual tracking dan melakukan publikasi pesan ke topik MQTT. |
 | 9 | **VPS Node** | - | Cloud VPS Node | Pusat infrastruktur server jarak jauh untuk menjalankan broker MQTT, penyimpanan database, dan manajemen alert. |
+
+### Wiring ESP32 DevKit V1 dengan MAX30102
+
+Sensor MAX30102 menggunakan komunikasi **I2C (Inter-Integrated Circuit)** untuk mengirimkan data detak jantung dan oksigen darah ke mikrokontroler ESP32. Hubungkan setiap pin sesuai tabel berikut:
+
+| Pin MAX30102 | Pin ESP32 DevKit V1 | Fungsi |
+|-------------|--------------------|---------|
+| VIN / VCC | 3V3 | Catu daya sensor |
+| GND | GND | Ground |
+| SDA | GPIO 21 | Jalur data I2C |
+| SCL | GPIO 22 | Jalur clock I2C |
+| INT (Opsional) | GPIO 19 | Interrupt sensor |
+
+#### Diagram Wiring
+
+```text
+MAX30102              ESP32 DevKit V1
+--------------------------------------
+VIN / VCC   ------->  3V3
+GND         ------->  GND
+SDA         ------->  GPIO 21
+SCL         ------->  GPIO 22
+INT         ------->  GPIO 19 (Opsional)
+```
+
+> **Catatan:** Pin `INT` tidak wajib digunakan. Sistem tetap dapat berjalan hanya dengan koneksi `VIN`, `GND`, `SDA`, dan `SCL`.
+
+---
+
+### Langkah 1: Inisialisasi Lapisan Sensor (Hardware Edge)
+
+1. Rangkai sensor MAX30102 ke ESP32 sesuai tabel wiring di atas.
+2. Hubungkan ESP32 ke komputer menggunakan kabel USB.
+3. Buka file `esp32_hrv.ino` menggunakan Arduino IDE.
+4. Pilih board **ESP32 Dev Module** dan port yang sesuai.
+5. Verifikasi (*Verify*) program untuk memastikan tidak ada error.
+6. Unggah (*Upload*) program ke ESP32.
+7. Setelah proses upload selesai, buka **Serial Monitor** untuk memastikan data denyut jantung berhasil terbaca.
+8. Pastikan sensor ditempelkan pada ujung jari dan LED pada MAX30102 menyala sebagai indikator pembacaan aktif.
+
+#### Konfigurasi I2C pada Program ESP32
+
+Pastikan program ESP32 menggunakan konfigurasi I2C berikut:
+
+```cpp
+#include <Wire.h>
+
+void setup() {
+    Wire.begin(21, 22); // SDA = GPIO21, SCL = GPIO22
+}
+```
+
+Konfigurasi tersebut harus sesuai dengan wiring yang digunakan agar komunikasi antara ESP32 dan sensor MAX30102 dapat berjalan dengan baik.
+
 ### Perangkat Lunak (Software)
 * **Arduino IDE:** Untuk mengompilasi dan mengunggah program firmware ke board ESP32.
 * **Mosquitto MQTT Broker:** Berjalan pada VPS untuk mendistribusikan pesan dari edge layer ke subscriber internal.
 * **Python 3.x:** Runtime utama yang mengeksekusi model deteksi wajah OpenCV/Dlib, pustaka manipulasi data (Numpy, Pandas), serta pustaka *Scikit-Learn* untuk *Random Forest Classifier*.
-* **MySQL & PostgreSQL:** Basis data relasional yang digunakan di VPS untuk menyimpan rekaman log jangka panjang dari pengemudi secara terstruktur.
+* **MySQL:** Basis data relasional yang digunakan di VPS untuk menyimpan rekaman log jangka panjang dari pengemudi secara terstruktur.
 * **Metabase:** Platform visualisasi data open-source untuk menampilkan performa grafis metrik kelelahan secara real-time.
 * **Telegram Bot API:** Layanan webhook untuk menyiarkan pesan peringatan dini ke perangkat pengawas atau pengemudi.
 
