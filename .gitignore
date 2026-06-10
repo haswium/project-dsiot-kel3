@@ -1,0 +1,9 @@
+venv
+metabase.jar
+.bash*
+.cache/
+.config/
+.ssh/
+metabase.*
+*.save
+.gitconfig
