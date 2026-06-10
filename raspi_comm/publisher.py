@@ -3,7 +3,10 @@ import random
 import time
 
 # --- KONFIGURASI ---
-MQTT_BROKER = "100.88.25.26" 
+#vps aiot 100.88.25.26
+#laptop rahmat 100.88.34.107
+
+MQTT_BROKER = "100.88.34.107" 
 MQTT_TOPIC = "/tes_coba"
 
 # Menggunakan API Version 2 agar tidak kena Warning

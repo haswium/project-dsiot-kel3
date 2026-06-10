@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Kamera Kelompok 3</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans min-h-screen">
+    
+    <nav class="bg-blue-700 text-white shadow-lg p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold tracking-wider">
+                <i class="fas fa-microchip mr-2"></i> IoT Dashboard Kelompok 3
+            </h1>
+            <div class="flex items-center space-x-2 bg-blue-800 px-3 py-1 rounded-full border border-blue-500">
+                <div class="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                <span class="text-sm font-semibold">Netbird Connected</span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto mt-8 px-4 flex flex-col lg:flex-row gap-6">
+        
+        <div class="lg:w-2/3 bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
+            <div class="bg-gray-800 text-white p-4 flex justify-between items-center">
+                <h2 class="font-semibold text-lg"><i class="fas fa-video text-blue-400 mr-2"></i> Live Camera (Raspberry Pi)</h2>
+                <div class="flex items-center bg-gray-900 px-2 py-1 rounded text-sm text-red-500 font-bold">
+                    <i class="fas fa-circle animate-ping text-xs mr-2"></i> LIVE
+                </div>
+            </div>
+            <div class="p-4 bg-gray-900 flex justify-center items-center min-h-[400px]">
+                <img src="{{ url_for('video_feed') }}" 
+                     class="rounded-lg shadow-2xl w-full max-w-2xl border-2 border-gray-700" 
+                     alt="Menunggu Stream Kamera...">
+            </div>
+        </div>
+
+        <div class="lg:w-1/3 flex flex-col gap-6">
+            
+            <div class="bg-white rounded-xl shadow-md p-6 border-t-4 border-blue-600">
+                <h3 class="text-xl font-bold mb-4 text-gray-700 border-b pb-2">
+                    <i class="fas fa-heartbeat text-red-500 mr-2"></i> Live Biometrik & AI
+                </h3>
+                <ul class="space-y-4">
+                    <li class="flex justify-between items-center">
+                        <span class="text-gray-500 font-medium">Heart Rate (HRV)</span> 
+                        <span id="ui-bpm" class="font-bold text-red-600 bg-red-100 px-3 py-1 rounded text-lg">-- BPM</span>
+                    </li>
+                    <li class="flex justify-between items-center">
+                        <span class="text-gray-500 font-medium">AI Kamera</span> 
+                        <span id="ui-cam" class="font-bold text-gray-700">--</span>
+                    </li>
+                    <li class="flex justify-between items-center mt-4 pt-4 border-t border-gray-200">
+                        <span class="text-gray-800 font-bold">STATUS FINAL</span> 
+                        <span id="ui-final" class="font-bold text-white bg-gray-500 px-3 py-1 rounded-lg shadow">--</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-md p-6 border-t-4 border-gray-600">
+                <h3 class="text-xl font-bold mb-4 text-gray-700 border-b pb-2">
+                    <i class="fas fa-cogs text-gray-500 mr-2"></i> Quick Actions
+                </h3>
+                <p class="text-sm text-gray-500 mb-4">Gunakan panel ini untuk mengontrol kamera Raspi secara langsung.</p>
+                
+                <button onclick="window.location.reload()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200 mb-3 shadow">
+                    <i class="fas fa-sync-alt mr-2"></i> Refresh Stream
+                </button>
+                
+                <button class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 px-4 rounded-lg transition duration-200 border shadow-sm">
+                    <i class="fas fa-camera mr-2"></i> Capture Frame
+                </button>
+            </div>
+            
+        </div>
+    </div>
+
+    <script>
+        setInterval(() => {
+            fetch('/sensor_data')
+                .then(response => response.json())
+                .then(data => {
+                    // Update Angka BPM
+                    document.getElementById('ui-bpm').innerText = data.bpm + " BPM";
+                    
+                    // Update Teks AI Kamera
+                    document.getElementById('ui-cam').innerText = data.cam_status;
+                    
+                    // Update Logika Final & Warnanya
+                    const finalBadge = document.getElementById('ui-final');
+                    finalBadge.innerText = data.final_status.toUpperCase();
+                    
+                    // Efek Warna: Kalau ngantuk merah, kalau aman hijau
+                    if(data.final_status.includes("tidak ngantuk")) {
+                        finalBadge.className = "font-bold text-white bg-green-500 px-3 py-1 rounded-lg shadow";
+                    } else if(data.final_status.includes("ngantuk")) {
+                        finalBadge.className = "font-bold text-white bg-red-600 px-3 py-1 rounded-lg shadow animate-pulse";
+                    }
+                })
+                .catch(err => console.error("Gagal ambil data:", err));
+        }, 1000); // Reload tiap 1 detik
+    </script>
+</body>
+</html>

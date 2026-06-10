@@ -1,0 +1,44 @@
+import mysql.connector
+import time
+import sys
+import random
+
+def simpan_data_sensor(user_id, hrv, eye):
+	try:
+		conn = mysql.connector.connect(
+			host="localhost",
+			user="kelompok3",
+			password="kelompok3**",
+			database="dsiot_kelompok3"
+		)
+		cursor = conn.cursor()
+
+		query = "INSERT INTO sensor_data (user_id, hrv, eye) VALUES (%s, %s, %s)"
+		values = (user_id, hrv, eye)
+
+		cursor.execute(query, values)
+		conn.commit()
+		print(f"[SUCCESS] Data disimpan: HRV={hrv}, Mata={eye}")
+
+	except mysql.connector.Error as err:
+		print(f"[ERROR] Gagal menyimpan data: {err}")
+	finally:
+		if 'conn' in locals() and conn.is_connected():
+			cursor.close()
+			conn.close()
+
+print("=== PROGRAM SIMULASI DSIOT ===")
+print("Tekan Ctrl + C untuk menghentikan program\n")
+
+try:
+	dummy_hrv = 75
+	dummy_eye = 0.95
+
+	while True:
+		simpan_data_sensor(user_id=1, hrv=dummy_hrv, eye=dummy_eye)
+		dummy_hrv = dummy_hrv + 1 if dummy_hrv < 85 else 72
+		time.sleep(2)
+
+except KeyboardInterrupt:
+	print("\n[INFO] Mematikan program simulasi secara aman...")
+	sys.exit(0)

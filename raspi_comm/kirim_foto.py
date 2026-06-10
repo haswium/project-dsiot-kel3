@@ -4,7 +4,7 @@ import base64
 import time
 
 # --- KONFIGURASI ---
-MQTT_BROKER = "100.88.0.45"  # Ganti dengan IP Netbird VPS kamu
+MQTT_BROKER = "100.88.25.26"  # Ganti dengan IP Netbird VPS kamu
 MQTT_TOPIC = "/kamera/foto"
 
 # Setup MQTT Client
@@ -30,9 +30,10 @@ if ret:
     
     # Ubah data biner menjadi teks (Base64) agar aman dikirim lewat MQTT
     jpg_as_text = base64.b64encode(buffer).decode('utf-8')
-    
+    result = client.publish(MQTT_TOPIC, jpg_as_text)
+    result.wait_for_publish()    
     # Kirim ke VPS
-    client.publish(MQTT_TOPIC, jpg_as_text)
+    #client.publish(MQTT_TOPIC, jpg_as_text)
     print("✅ Foto berhasil dikirim ke VPS via MQTT!")
 else:
     print("❌ Gagal mengambil gambar dari kamera.")
