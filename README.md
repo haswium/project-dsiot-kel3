@@ -164,17 +164,15 @@ Untuk mendeteksi penurunan kesadaran secara akurat, sistem mengombinasikan detek
 * **Kritis (Hampir Tidur / Microsleep): < 70 BPM**
     Kondisi darurat di mana denyut jantung turun secara signifikan di bawah batas aman (kecuali bagi **individu** dengan riwayat kondisi fisik atlet). Berisiko tinggi memicu insiden akibat hilangnya kesadaran total dalam hitungan detik.
 ---
-
 ## 6. Struktur Topik MQTT (VPS Node)
 
-Broker Mosquitto di Cloud VPS mengelola tiga topik utama yang dikirim secara simultan oleh subsistem edge untuk diolah oleh pipeline AI:
+Broker Mosquitto di Cloud VPS mengelola tiga topik utama yang digunakan sebagai saluran komunikasi antar komponen sistem:
 
 | Nama Topik | Tipe Data | Deskripsi Fungsi | Source Node |
 | :--- | :--- | :--- | :--- |
-| `/status_cam` | String / Boolean | Mengirimkan status deteksi kelelahan visual (misal: `0` untuk normal, `1` untuk mengantuk/menguap) berdasarkan hasil kalkulasi kelopak mata dan mulut oleh kamera. | Laptop Edge Computer |
-| `/hrv` | Integer | Meneruskan data denyut jantung mentah yang dibaca dari sensor pulsa yang terikat pada mikrokontroler. | ESP32 via Raspberry Pi |
-| `/is_tired` | String / JSON | Hasil keputusan final fusi sensor (kombinasi data `/status_cam` dan `/hrv`) yang telah dievaluasi oleh algoritma Random Forest Classifier di VPS. | Cloud VPS AI Engine |
-
+| `/status_cam` | String | Mengirimkan status deteksi kelelahan visual (misal: "pengendara ngantuk") berdasarkan hasil kalkulasi kelopak mata dan mulut. | Laptop (Edge PC) |
+| `/hrv` | JSON | Meneruskan data denyut jantung dan parameter HRV yang telah diproses dari sensor. | ESP32 via Raspberry Pi |
+| `/is_tired` | String | Hasil keputusan final fusi sensor (kombinasi data visual dan fisiologis) yang telah dievaluasi oleh sistem di Laptop. | Laptop (Edge PC) |
 ---
 
 ## 8. Panduan Menjalankan Sistem (Execution Guide)
