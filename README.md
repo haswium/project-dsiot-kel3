@@ -47,11 +47,28 @@ System Flowchart
 ![Image](dokumentasi/flowchart.png)
 
 ### Detail Urutan Logika Sistem
-1. **Ekstraksi Data Sensor:** ESP32 secara kontinu menangkap data detak jantung mentah dan meneruskannya ke Raspberry Pi. Kamera pada kabin menangkap visual wajah pengemudi.
-2. **Pra-pemrosesan Edge:** Laptop melakukan kalkulasi visual (*facial landmarks*) untuk menentukan status kedipan lambat atau menguap, sedangkan Raspberry Pi memproses sinyal HRV.
-3. **Ingest Data MQTT:** Data visual dikirim melalui topik `/status_cam`, data detak jantung dikirim melalui topik `/hrv`.
-4. **Fusi Sensor & Inferensi AI:** Model Random Forest di VPS membaca kombinasi input visual dan fisiologis secara bersamaan untuk menentukan nilai akhir pada topik `/is_tired`.
-5. **Aksi Aplikasi:** Data terekam di MySQL/PostgreSQL, Metabase memperbarui visualisasi dashboard, dan Telegram Bot mengirimkan pesan interupsi apabila status klasifikasi berada di luar batas aman.
+
+Sistem ini menggunakan arsitektur *Edge-Based Fusion* untuk memastikan deteksi yang *real-time* dan responsif. Berikut adalah detail urutan logika sistem:
+
+1. **Ekstraksi Data Sensor**
+   * **ESP32:** Menangkap data HRV mentah dari sensor MAX30102 dan mengirimkannya ke Raspberry Pi.
+   * **Webcam:** Menangkap visual wajah pengemudi di kabin secara *real-time*.
+
+2. **Pra-pemrosesan & Komunikasi Lokal**
+   * **Raspberry Pi (Gateway):** Menerima data HRV mentah, melakukan pembersihan *noise* melalui filter digital, lalu mengirimkan data HRV yang bersih ke **Laptop Rahmat** melalui *broker* MQTT lokal.
+   * **Laptop Rahmat (Edge PC):** Memproses *frame* video untuk melakukan *facial landmark tracking* guna mendapatkan nilai *Eye Aspect Ratio* (EAR) dan *Mouth Aspect Ratio* (MAR).
+
+3. **Fusi Sensor & Inferensi AI (Edge Level)**
+   * Laptop Rahmat mengintegrasikan data HRV dari Raspberry Pi dengan hasil analisis visual. Keputusan akhir untuk klasifikasi kondisi kelelahan ("pengendara ngantuk" atau "tidak ngantuk") ditentukan langsung di *edge* menggunakan **Logika Fusi (AND Gate)** untuk memastikan validitas data.
+
+4. **Ingest Data MQTT ke Cloud**
+   * Hasil keputusan final (*final decision*) dipublikasikan oleh Laptop ke topik `/is_tired`. 
+   * Data sensor mentah lainnya (status visual dan nilai BPM) tetap dikirim ke topik `/status_cam` dan `/hrv` sebagai arsip log untuk kebutuhan analisis jangka panjang.
+
+5. **Aksi Aplikasi (Cloud VPS)**
+   * **Database:** VPS menyimpan seluruh log data ke MySQL/PostgreSQL untuk rekaman historis.
+   * **Notifikasi:** Jika status yang diterima di topik `/is_tired` adalah "pengendara ngantuk", **Telegram Bot** akan secara otomatis mengirimkan notifikasi peringatan interupsi kepada pengawas/pengemudi.
+   * **Visualisasi:** **Metabase** memperbarui dasbor performa secara otomatis berdasarkan data terbaru dari VPS.
 
 ---
 
