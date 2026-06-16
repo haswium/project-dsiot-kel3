@@ -40,11 +40,11 @@ Sistem terdiri dari beberapa entitas perangkat keras: **ESP32** (membaca sensor 
 
 System Architecture Diagram
 
-<img src="dokumentasi/architecturediagram.jpeg>
+![Image](dokumentasi/architecturediagram.jpeg)
 
 System Flowchart
 
-<img src="dokumentasi/flowchart.png>
+![Image](dokumentasi/flowchart.png)
 
 ### Detail Urutan Logika Sistem
 1. **Ekstraksi Data Sensor:** ESP32 secara kontinu menangkap data detak jantung mentah dan meneruskannya ke Raspberry Pi. Kamera pada kabin menangkap visual wajah pengemudi.
