@@ -56,10 +56,10 @@ Sistem ini menggunakan arsitektur *Edge-Based Fusion* untuk memastikan deteksi y
 
 2. **Pra-pemrosesan & Komunikasi Lokal**
    * **Raspberry Pi (Gateway):** Menerima data HRV mentah, melakukan pembersihan *noise* melalui filter digital, lalu mengirimkan data HRV yang bersih ke **Laptop Rahmat** melalui *broker* MQTT lokal.
-   * **Laptop Rahmat (Edge PC):** Memproses *frame* video untuk melakukan *facial landmark tracking* guna mendapatkan nilai *Eye Aspect Ratio* (EAR) dan *Mouth Aspect Ratio* (MAR).
+   * **Laptop (Edge PC):** Memproses *frame* video untuk melakukan *facial landmark tracking* guna mendapatkan nilai *Eye Aspect Ratio* (EAR) dan *Mouth Aspect Ratio* (MAR).
 
 3. **Fusi Sensor & Inferensi AI (Edge Level)**
-   * Laptop Rahmat mengintegrasikan data HRV dari Raspberry Pi dengan hasil analisis visual. Keputusan akhir untuk klasifikasi kondisi kelelahan ("pengendara ngantuk" atau "tidak ngantuk") ditentukan langsung di *edge* menggunakan **Logika Fusi (AND Gate)** untuk memastikan validitas data.
+   * Laptop mengintegrasikan data HRV dari Raspberry Pi dengan hasil analisis visual. Keputusan akhir untuk klasifikasi kondisi kelelahan ("pengendara ngantuk" atau "tidak ngantuk") ditentukan langsung di *edge* menggunakan **Logika Fusi (AND Gate)** untuk memastikan validitas data.
 
 4. **Ingest Data MQTT ke Cloud**
    * Hasil keputusan final (*final decision*) dipublikasikan oleh Laptop ke topik `/is_tired`. 
