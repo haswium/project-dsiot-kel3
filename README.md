@@ -13,9 +13,8 @@
 4. [Alat dan Bahan](#4-alat-dan-bahan)
 5. [Parameter Klinis dan Threshold Fisiologis](#5-parameter-klinis-dan-threshold-fisiologis)
 6. [Struktur Topik MQTT (VPS Node)](#6-struktur-topik-mqtt-vps-node)
-7. [Struktur Direktori](#7-struktur-direktori)
-8. [Panduan Menjalankan Sistem (Execution Guide)](#8-panduan-menjalankan-sistem-execution-guide)
-9. [Video Demonstrasi](#9-video-demonstrasi)
+7. [Panduan Menjalankan Sistem (Execution Guide)](#7-panduan-menjalankan-sistem-execution-guide)
+8. [Video Demonstrasi](#8-video-demonstrasi)
 ---
 
 ## 1. Latar Belakang
@@ -175,7 +174,7 @@ Broker Mosquitto di Cloud VPS mengelola tiga topik utama yang digunakan sebagai 
 | `/is_tired` | String | Hasil keputusan final fusi sensor (kombinasi data visual dan fisiologis) yang telah dievaluasi oleh sistem di Laptop. | Laptop (Edge PC) |
 ---
 
-## 8. Panduan Menjalankan Sistem (Execution Guide)
+## 7. Panduan Menjalankan Sistem (Execution Guide)
 
 Ikuti urutan langkah-langkah di bawah ini secara runtut untuk memastikan seluruh komponen edge, gateway, dan cloud terhubung dengan benar.
 
@@ -201,9 +200,9 @@ Ikuti urutan langkah-langkah di bawah ini secara runtut untuk memastikan seluruh
 1. Buka terminal lokal pada Laptop/PC yang terhubung ke webcam kabin.
 2. Arahkan ke direktori project Anda:
 
-## 9. Video Demonstrasi
+## 8. Video Demonstrasi
 
 Video demonstrasi implementasi sistem dapat diakses melalui tautan berikut:
 
 📹 **Video Demo Project:**  
-[https://drive.google.com/file/d/18hua-VJ0BEN1F4AF8XjNADtF9VX8xU3A/view?usp=drive_link]
+[https://drive.google.com/file/d/1Xrcj6zPb8dCfOfCatPWd7E46sEvIN0SS/view?usp=drivesdk]
